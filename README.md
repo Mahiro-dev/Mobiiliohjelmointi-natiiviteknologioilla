@@ -1,12 +1,13 @@
-# Vk_1_kotlin_basics
+# Week 2 tasks 
 
 ## Description
-simple task list application built with Kotlin and Jetpack Compose.
-Kotlin basics, immutable data handling, and creating a first
-Compose-based UI without XML.
+Simple task list application built with Kotlin and Jetpack Compose.
+
+Week 2 edits, state management using ViewModel and reactive UI
+updates with Jetpack Compose.
 
 ## Data model
-application uses a `Task` data class with the following fields:
+The application uses a `Task` data class with the following fields:
 - id
 - title
 - description
@@ -14,29 +15,42 @@ application uses a `Task` data class with the following fields:
 - dueDate
 - done
 
-Mock data (5 tasks) is provided in the domain layer.
+Mock data (5 tasks) is initialized in the ViewModel.
 
-## Kotlin functions
-pure Kotlin functions:
-- addTask: adds a new task to the end of the list
-- toggleDone: toggles the completion state of a task
-- filterByDone: filters tasks by done state
-- sortByDueDate: sorts tasks by due date
+## State management
+Task state is managed in `TaskViewModel` using `mutableStateOf`.
+The ViewModel acts as the single source of truth for the task list and
+contains all logic for modifying state.
 
-All functions return new lists and do not mutate existing data.
+Using a ViewModel keeps state separate from UI and allows it to survive
+configuration changes, unlike `remember` which is tied to a single
+Composable.
+
+## Functionality
+in the ViewModel:
+- addTask / addTaskFromTitle: add a new task
+- toggleDone: toggle task completion
+- removeTask: delete a task
+- filterByDone: show done or todo tasks
+- sortByDueDate: sort tasks by due date
+
+The UI updates automatically when the ViewModel state changes
+(recomposition).
 
 ## UI
-The HomeScreen is implemented using Jetpack Compose.
-It displays:
-- a title
-- a list of tasks
-- buttons for adding, sorting, filtering, and toggling task state
+The HomeScreen is implemented using Jetpack Compose and displays:
+- a list of tasks using LazyColumn
+- checkbox for task completion
+- delete button per task
+- buttons for sorting and filtering
+- TextField and button for adding new tasks
 
-The UI uses basic Compose layouts such as Column, Row, and Modifier.
+Layout is built using basic Compose components such as Column, Row,
+Modifier, and Card. No XML layouts are used.
 
 ## How to run
 1. Open the project in Android Studio
 2. Sync Gradle
-3. Run the app on an Android Emulator or physical Android device
+3. Run the app on an Android Emulator
 
-APK is also provided for direct installation.
+An APK is also provided for direct installation.
