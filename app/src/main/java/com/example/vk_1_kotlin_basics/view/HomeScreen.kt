@@ -1,5 +1,6 @@
-package com.example.vk_1_kotlin_basics.ui
+package com.example.vk_1_kotlin_basics.view
 
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -9,11 +10,16 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.example.vk_1_kotlin_basics.model.Task
 import com.example.vk_1_kotlin_basics.viewmodel.TaskViewModel
+import androidx.compose.runtime.collectAsState
 
 @Composable
 fun HomeScreen(vm: TaskViewModel = viewModel()) {
+    val tasks by vm.tasks.collectAsState()
+
     var newTitle by remember { mutableStateOf("") }
+    var selectedTask by remember { mutableStateOf<Task?>(null) }
 
     Column(
         modifier = Modifier
@@ -21,7 +27,7 @@ fun HomeScreen(vm: TaskViewModel = viewModel()) {
             .padding(16.dp)
     ) {
         Text(
-            text = "Vk 2: Tasks",
+            text = "Vk 3: MVVM",
             style = MaterialTheme.typography.headlineSmall
         )
 
@@ -32,8 +38,9 @@ fun HomeScreen(vm: TaskViewModel = viewModel()) {
             horizontalArrangement = Arrangement.spacedBy(8.dp)
         ) {
             Button(onClick = { vm.sortByDueDate() }) { Text("Sort") }
-            Button(onClick = { vm.filterByDone(true) }) { Text("Show Done") }
-            Button(onClick = { vm.filterByDone(false) }) { Text("Show Todo") }
+            Button(onClick = { vm.filterByDone(true) }) { Text("Done") }
+            Button(onClick = { vm.filterByDone(false) }) { Text("Todo") }
+            Button(onClick = { vm.clearFilter() }) { Text("All") }
         }
 
         Spacer(modifier = Modifier.height(12.dp))
@@ -70,25 +77,44 @@ fun HomeScreen(vm: TaskViewModel = viewModel()) {
             modifier = Modifier.fillMaxSize(),
             verticalArrangement = Arrangement.spacedBy(8.dp)
         ) {
-            items(vm.tasks, key = { it.id }) { task ->
+            items(tasks, key = { it.id }) { task ->
                 TaskRow(
                     task = task,
                     onToggle = { vm.toggleDone(task.id) },
-                    onRemove = { vm.removeTask(task.id) }
+                    onRemove = { vm.removeTask(task.id) },
+                    onOpenDetail = { selectedTask = task }
                 )
             }
         }
+    }
+
+    if (selectedTask != null) {
+        DetailDialog(
+            task = selectedTask!!,
+            onDismiss = { selectedTask = null },
+            onSave = { updated ->
+                vm.updateTask(updated)
+                selectedTask = null
+            },
+            onDelete = { id ->
+                vm.removeTask(id)
+                selectedTask = null
+            }
+        )
     }
 }
 
 @Composable
 private fun TaskRow(
-    task: com.example.vk_1_kotlin_basics.domain.Task,
+    task: Task,
     onToggle: () -> Unit,
-    onRemove: () -> Unit
+    onRemove: () -> Unit,
+    onOpenDetail: () -> Unit
 ) {
     Card(
-        modifier = Modifier.fillMaxWidth()
+        modifier = Modifier
+            .fillMaxWidth()
+            .clickable { onOpenDetail() }
     ) {
         Row(
             modifier = Modifier
@@ -103,11 +129,22 @@ private fun TaskRow(
 
             Spacer(modifier = Modifier.width(8.dp))
 
-            Text(
-                modifier = Modifier.weight(1f),
-                text = task.title,
-                style = MaterialTheme.typography.bodyLarge
-            )
+            Column(
+                modifier = Modifier.weight(1f)
+            ) {
+                Text(
+                    text = task.title,
+                    style = MaterialTheme.typography.bodyLarge
+                )
+
+                if (task.description.isNotBlank()) {
+                    Text(
+                        text = task.description,
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                }
+            }
 
             TextButton(onClick = onRemove) {
                 Text("Delete")

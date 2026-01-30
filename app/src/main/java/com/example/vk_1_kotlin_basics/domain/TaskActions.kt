@@ -1,5 +1,7 @@
 package com.example.vk_1_kotlin_basics.domain
 
+import com.example.vk_1_kotlin_basics.model.Task
+
 fun addTask(list: List<Task>, task: Task): List<Task> {
     return list + task
 }

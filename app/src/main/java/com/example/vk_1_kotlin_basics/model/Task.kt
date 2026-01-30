@@ -1,4 +1,4 @@
-package com.example.vk_1_kotlin_basics.domain
+package com.example.vk_1_kotlin_basics.model
 
 import java.time.LocalDate
 
