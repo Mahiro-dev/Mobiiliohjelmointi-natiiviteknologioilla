@@ -1,56 +1,64 @@
-# Week 2 tasks 
+## Architecture (MVVM)
 
-## Description
-Simple task list application built with Kotlin and Jetpack Compose.
+project follows the Model–View–ViewModel (MVVM) pattern.
 
-Week 2 edits, state management using ViewModel and reactive UI
-updates with Jetpack Compose.
+## Model
 
-## Data model
-The application uses a `Task` data class with the following fields:
-- id
-- title
-- description
-- priority
-- dueDate
-- done
+Task data class represents application data.
+It contains only data fields (id, title, description, priority, dueDate, done)
+and has no UI or business logic.
 
-Mock data (5 tasks) is initialized in the ViewModel.
+## View
 
-## State management
-Task state is managed in `TaskViewModel` using `mutableStateOf`.
-The ViewModel acts as the single source of truth for the task list and
-contains all logic for modifying state.
+UI is implemented using Jetpack Compose in HomeScreen and DetailDialog.
 
-Using a ViewModel keeps state separate from UI and allows it to survive
-configuration changes, unlike `remember` which is tied to a single
-Composable.
+- Displays a list of tasks
 
-## Functionality
-in the ViewModel:
-- addTask / addTaskFromTitle: add a new task
-- toggleDone: toggle task completion
-- removeTask: delete a task
-- filterByDone: show done or todo tasks
-- sortByDueDate: sort tasks by due date
+- Handles user input (add, toggle, edit, delete)
 
-The UI updates automatically when the ViewModel state changes
-(recomposition).
+- Does not manage application state directly
 
-## UI
-The HomeScreen is implemented using Jetpack Compose and displays:
-- a list of tasks using LazyColumn
-- checkbox for task completion
-- delete button per task
-- buttons for sorting and filtering
-- TextField and button for adding new tasks
+## ViewModel
 
-Layout is built using basic Compose components such as Column, Row,
-Modifier, and Card. No XML layouts are used.
+TaskViewModel contains all application logic and state.
+Manages the task list, Exposes state to the UI and Provides functions:
+
+- addTask
+
+- toggleDone
+
+- removeTask
+
+- updateTask
+
+## State management with StateFlow
+
+task list state is stored in the ViewModel using StateFlow. StateFlow always holds the current state When the ViewModel updates the state, a new value is emitted
+The UI observes the state using collectAsState()
+changes in the ViewModel are immediately reflected in the UI without manual refresh logic.
+
+## Why ViewModel + StateFlow instead of remember
+
+Using ViewModel with StateFlow is good because
+State survives configuration changes like screen rotation.
+Easier to maintain and extend than remember only state
+
+## UI features
+
+Task list displayed using LazyColumn
+
+- Add new tasks
+- Toggle task completion
+- Filter tasks (Done / Todo / All)
+- Sort tasks by due date
+- Edit and delete tasks using a detail dialog
 
 ## How to run
+
 1. Open the project in Android Studio
+
 2. Sync Gradle
-3. Run the app on an Android Emulator
+
+3. Run the app on an Android Emulator or physical Android device
 
 An APK is also provided for direct installation.
