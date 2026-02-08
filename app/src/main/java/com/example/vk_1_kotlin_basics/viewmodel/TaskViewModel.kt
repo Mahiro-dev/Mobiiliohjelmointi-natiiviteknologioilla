@@ -36,19 +36,23 @@ class TaskViewModel : ViewModel() {
         refreshVisible()
     }
 
-    fun addTaskFromTitle(title: String) {
-        val clean = title.trim()
-        if (clean.isEmpty()) return
+    fun addTaskDetailed(title: String, description: String) {
+        val cleanTitle = title.trim()
+        if (cleanTitle.isEmpty()) return
 
         val task = Task(
             id = nextId(),
-            title = clean,
-            description = "",
+            title = cleanTitle,
+            description = description,
             priority = Priority.LOW,
             dueDate = LocalDate.now(),
             done = false
         )
         addTask(task)
+    }
+
+    fun addTaskFromTitle(title: String) {
+        addTaskDetailed(title, "")
     }
 
     fun toggleDone(id: Int) {

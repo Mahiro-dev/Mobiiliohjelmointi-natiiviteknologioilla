@@ -9,27 +9,54 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.navigation.NavController
+import com.example.vk_1_kotlin_basics.ROUTE_CALENDAR
+import com.example.vk_1_kotlin_basics.ROUTE_SETTINGS
 import com.example.vk_1_kotlin_basics.model.Task
 import com.example.vk_1_kotlin_basics.viewmodel.TaskViewModel
 import androidx.compose.runtime.collectAsState
 
 @Composable
-fun HomeScreen(vm: TaskViewModel = viewModel()) {
+fun HomeScreen(
+    vm: TaskViewModel,
+    navController: NavController
+) {
     val tasks by vm.tasks.collectAsState()
 
     var newTitle by remember { mutableStateOf("") }
     var selectedTask by remember { mutableStateOf<Task?>(null) }
+
+    var showAddDialog by remember { mutableStateOf(false) }
 
     Column(
         modifier = Modifier
             .fillMaxSize()
             .padding(16.dp)
     ) {
-        Text(
-            text = "Vk 3: MVVM",
-            style = MaterialTheme.typography.headlineSmall
-        )
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Text(
+                text = "Vk 4: Navig",
+                style = MaterialTheme.typography.headlineSmall
+            )
+
+            Row {
+                TextButton(onClick = { showAddDialog = true }) {
+                    Text("+ Add")
+                }
+                TextButton(onClick = { navController.navigate(ROUTE_CALENDAR) }) {
+                    Text("Calendar")
+                }
+                TextButton(onClick = { navController.navigate(ROUTE_SETTINGS) }) {
+                    Text("Settings")
+                }
+
+            }
+        }
+
 
         Spacer(modifier = Modifier.height(12.dp))
 
@@ -44,7 +71,7 @@ fun HomeScreen(vm: TaskViewModel = viewModel()) {
         }
 
         Spacer(modifier = Modifier.height(12.dp))
-
+/*
         Row(
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.spacedBy(8.dp),
@@ -70,7 +97,7 @@ fun HomeScreen(vm: TaskViewModel = viewModel()) {
                 Text("Add")
             }
         }
-
+*/
         Spacer(modifier = Modifier.height(12.dp))
 
         LazyColumn(
@@ -100,6 +127,16 @@ fun HomeScreen(vm: TaskViewModel = viewModel()) {
                 vm.removeTask(id)
                 selectedTask = null
             }
+        )
+    }
+
+    if (showAddDialog) {
+        AddTaskDialog(
+            onAdd = { title, description ->
+                vm.addTaskDetailed(title, description)
+                showAddDialog = false
+            },
+            onDismiss = { showAddDialog = false }
         )
     }
 }
