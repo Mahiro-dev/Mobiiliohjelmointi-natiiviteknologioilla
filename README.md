@@ -1,57 +1,56 @@
-## Architecture (MVVM)
+## Navigation & Architecture
 
-project follows the Model–View–ViewModel (MVVM) pattern.
+### Jetpack Compose navigation
+Navigation in Jetpack Compose is handled inside a single Activity using composable destinations instead of multiple Activities or Fragments. Each screen is represented by a Composable function, and navigation between screens is managed by a NavController.
 
-## Model
+NavController is responsible for handling navigation actions (navigate, back).  
+NavHost defines the navigation graph and maps routes to Composable screens.
 
-Task data class represents application data.
-It contains only data fields (id, title, description, priority, dueDate, done)
-and has no UI or business logic.
+### App navigation structure
+This app uses a simple navigation structure with two main routes:
+- `home` -> HomeScreen (task list)
+- `calendar` -> CalendarScreen (calendar-style view)
 
-## View
+Navigation is implemented in `MainActivity` using `NavHost`.  
+Users can move between Home and Calendar using UI buttons, and the system back button works automatically.
 
-UI is implemented using Jetpack Compose in HomeScreen and DetailDialog.
+---
 
-- Displays a list of tasks
+## MVVM + Shared ViewModel
 
-- Handles user input (add, toggle, edit, delete)
+The app follows the MVVM (Model–View–ViewModel) architecture:
+- **Model**: `Task` data class
+- **ViewModel**: `TaskViewModel`
+- **View**: Compose UI screens
 
-- Does not manage application state directly
+single `TaskViewModel` instance is created at the NavHost level and shared between both HomeScreen and CalendarScreen.
+- The ViewModel is not recreated when navigating
+- Both screens always show the same data
+- Changes made in one screen are immediately visible in the other
 
-## ViewModel
+UI screens observe the ViewModel state using `collectAsState()`, so the UI updates automatically when data changes.
 
-TaskViewModel contains all application logic and state.
-Manages the task list, Exposes state to the UI and Provides functions:
+---
 
-- addTask
+## CalendarScreen implementation
+CalendarScreen displays tasks grouped by their `dueDate`. Tasks are grouped using `groupBy(dueDate)` and shown with:
+- A date header
+- Tasks listed under each date
 
-- toggleDone
+This creates a clear, calendar-like view without using a complex calendar component.
 
-- removeTask
+---
 
-- updateTask
+## Dialogs for adding and editing tasks
+Task creation and editing are handled using `AlertDialog` components instead of separate navigation screens.
 
-## State management with StateFlow
+- **Add task**:  
+  Triggered by a `+ Add` button. Opens a dialog with input fields for title and description. Saving calls `addTask()` in the ViewModel.
 
-task list state is stored in the ViewModel using StateFlow. StateFlow always holds the current state When the ViewModel updates the state, a new value is emitted
-The UI observes the state using collectAsState()
-changes in the ViewModel are immediately reflected in the UI without manual refresh logic.
+- **Edit task**:  
+  Triggered by tapping an existing task. Opens a dialog with pre-filled values. Saving calls `updateTask()`, deleting calls `removeTask()`.
 
-## Why ViewModel + StateFlow instead of remember
-
-Using ViewModel with StateFlow is good because
-State survives configuration changes like screen rotation.
-Easier to maintain and extend than remember only state
-
-## UI features
-
-Task list displayed using LazyColumn
-
-- Add new tasks
-- Toggle task completion
-- Filter tasks (Done / Todo / All)
-- Sort tasks by due date
-- Edit and delete tasks using a detail dialog
+Dialogs allow simple data input without increasing navigation complexity.
 
 ## How to run
 
